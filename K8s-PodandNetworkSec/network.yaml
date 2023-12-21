@@ -1,0 +1,29 @@
+# Network của một container sẽ được tổ chức theo 4 dạng như sau:
+
+# Closed containers
+# Bridged containers
+# Joined containers
+# Open containers
+
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: deploy-test
+  name: pod-with-host-network
+spec:
+  hostNetwork: true # use host network of the node
+  containers:
+    - name: main
+      resources: {}
+      image: alpine
+      command: ["/bin/sleep", "999999"]
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny
+  namespace: default
+spec:
+  podSelector: # select all pod

@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kubia
+  namespace: deploy-test
+spec:
+  selector:
+    matchLabels:
+      app: kubia
+  template:
+    metadata:
+      labels:
+        app: kubia
+    spec:
+      containers:
+      - name: kubia
+        image: luksa/kubia:v1
+        resources:
+          limits: {}
+          requests:
+            cpu: 100m
+
+---
+
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: kubia
+  namespace: deploy-test
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: kubia
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 30

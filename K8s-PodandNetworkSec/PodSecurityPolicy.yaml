@@ -1,0 +1,28 @@
+# PodSecurityPolicy có thể định nghĩa các policy những sau đây:
+
+# Pod có thể sử dụng host’s IPC, PID, hostNetwork hay không
+# UserID nào container có thể sử dụng
+# Có thể sử dụng privileged mode hay không
+# Những kernel capabilities nào được cho phép thêm hoặc xóa
+# Container có thể xài thuộc tính readOnlyRootFilesystem hay không
+# Pod có thể xài volume gì
+# ...
+
+apiVersion: extensions/v1
+kind: PodSecurityPolicy
+metadata:
+  name: default
+spec:
+  hostIPC: false # aren’t allowed to use the hostIPC
+  hostPID: false # aren’t allowed to use the hostPID
+  hostNetwork: false # aren’t allowed to use the hostNetwork
+  privileged: false # aren’t allowed to use privileged
+  readOnlyRootFilesystem: true # allowed to use readOnlyRootFilesystem
+  runAsUser:
+    rule: RunAsAny # can run as any user
+  fsGroup:
+    rule: RunAsAny # can run as any group
+  supplementalGroups:
+    rule: RunAsAny
+  volumes:
+    - '*' # All volume types can be used in pods.

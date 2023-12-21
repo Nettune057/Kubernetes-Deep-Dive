@@ -1,0 +1,18 @@
+# Quota scope cho Pod
+# Đối với Pod, ta có thể chỉ định Quota có được áp dụng với tới nó hay không dựa vào 4 thuộc tính sau đây:
+
+# BestEffort: chỉ ảnh hưởng tới Pod với Qos class là BestEffort
+# NotBestEffort: chỉ ảnh hưởng tới Pod với Qos class là Burstable và Guaranteed
+# Terminating: chỉ ảnh hưởng tới Pod có thuộc tính activeDeadlineSeconds
+# NotTerminating: chỉ ảnh hưởng tới Pod không có thuộc tính activeDeadlineSeconds
+
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: besteffort-notterminating-pods
+spec:
+  scopes:
+    - BestEffort
+    - NotTerminating
+  hard:
+    pods: 4

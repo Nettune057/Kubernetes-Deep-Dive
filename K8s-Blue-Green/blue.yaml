@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: blue
+  labels:
+    app: blue
+  namespace: blue-green-test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: blue
+  template:
+    metadata:
+      labels:
+        app: blue
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        resources: {}
+        volumeMounts:
+          - mountPath: /usr/share/nginx/html
+            name: test-volume
+      volumes:
+      - name: test-volume
+        hostPath:
+          path: /data/blue-nginx
+status: {}
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: blueapp
+  labels:
+    app: blue
+  namespace: blue-green-test
+spec:
+  selector:
+    app: blue
+  ports:
+  - port: 8083
+    targetPort: 80
+
+

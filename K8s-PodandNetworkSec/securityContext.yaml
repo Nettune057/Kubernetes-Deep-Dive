@@ -1,0 +1,28 @@
+# kubernetes có cung cấp cho ta thuộc tính securityContext, cho phép có thể config một số thuộc tính container như sau:
+
+# Chỉ định userid và groupid cho container.
+# Ngăn chặn container run với root user.
+# Chạy container với privileged mode, cho phép container có toàn quyền với node’s kernel.
+# Cấu hình fine-grained privileges.
+# Chặn process có thể ghi vào trong filesystem của container.
+# ...
+
+# run not as root
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-as-user-guest
+spec:
+  containers:
+    - name: main
+      image: alpine
+      resources: {}
+      command: ["/bin/sleep", "999999"]
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        capabilities:
+          add: # or drop
+            - SYS_TIME
+        readOnlyRootFilesystem: true

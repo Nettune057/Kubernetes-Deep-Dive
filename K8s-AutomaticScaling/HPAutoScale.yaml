@@ -1,0 +1,51 @@
+# Nói về scale thì có 2 cách scale là horizontal scaling và vertical scaling:
+
+# Horizontal scaling là cách scale mà ta sẽ tăng số lượng worker (application) đang sử lý công việc hiện tại ra nhiều hơn. Ví dụ ta đang có 2 Pod để xử lý tích điểm cho client khi client tạo deal thành công, khi số lượng client tăng đột biến, 2 Pod hiện tại không thể xử lý kịp, ta sẽ scale số lượng Pod lên thành 4 Pod chẳng hạn.
+# Vertical scaling là cách scale thay vì tăng số lượng worker lên, ta sẽ tăng số lượng tài nguyên có thể sử dụng của ứng dụng đó lên, như là tăng số lượng cpu và memory của ứng dụng đó. Ví dụ ta có một model để train AI, thì việc train AI này ta không thể tách ra một model khác để tăng tốc độ train được, mà ta chỉ có thể tăng cpu và memory cho model đó.
+
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: micro-services-autoscale
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: micro-services-autoscale
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 70
+
+# Tính toán số lượng Pod cần thiết
+# Sau khi horizontal controller thu thập được metric, 
+# nó sẽ tiến hành giai đoạn tiếp theo là tính toán số 
+# lượng Pod dựa theo metric thu thập được với số metric 
+# ta chỉ định trong HPA, nó sẽ tính ra số replicas từ 
+# hai thằng metric ở trên theo một công thức có sẵn. 
+# Với giá trị đầu vào là một nhóm pod metrics và đầu ra là số replicas tương ứng.
+# Công thức dạng đơn giản như sau:
+
+# desiredReplicas = ceil[currentReplicas * ( currentMetricValue / desiredMetricValue )]
+
+# Cấu hình chỉ có một metric
+# Khi một HPA cấu hình chỉ có một metric (chỉ có cpu hoặc memory) 
+# thì việc tính toán số lượng Pod chỉ có một bước là sử dụng công thức trên. 
+# Ví dụ ta có giá trị current metric hiện tại là 200m, giá trị desired là 100m, 
+# current replicas là 2, ta sẽ có:
+
+# currentMetricValue / desiredMetricValue = 200m / 100m = 2
+
+# desiredReplicas = ceil[2 * (2)] = 4
+
+# Số lượng replicas của ta bây giờ sẽ được scale từ 2 lên 4. Một ví dụ khác là ta có giá trị current metric hiện tại là 50m, 
+# , giá trị desired là 100m, ta sẽ có:
+
+# currentMetricValue / desiredMetricValue = 50m / 100m = 0.5
+
+# Horizontal controller sẽ bỏ qua việc scale up khi giá trị của currentMetricValue / desiredMetricValue xấp xỉ 1.

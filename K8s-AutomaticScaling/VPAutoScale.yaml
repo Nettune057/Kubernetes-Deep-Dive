@@ -1,0 +1,23 @@
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: my-app-vpa
+spec:
+  targetRef:
+    apiVersion: "apps/v1"
+    kind:       Deployment
+    name:       my-app
+  updatePolicy:
+    updateMode: "Auto"
+
+# VPA sẽ có 3 component như sau:
+
+# Recommender: component này sẽ monitor các tài nguyên đã tiêu thụ trước 
+# đó tài nguyên hiện tại để cung cấp giá trị cpu và memory requests gợi ý.
+# Updater: component này sẽ kiểm tra Pod được quản lý bởi scalable resource 
+# có cpu và memory đúng với giá trị của Recommender cung cấp ở trên hay không, 
+# nếu không, nó sẽ kill Pod đó và tạo lại Pod mới với cpu và memory requests đã được 
+# cập nhật đúng theo Recommender.
+# Admission Plugin: đây là admission plugin của VPA thêm vào các Admission Plugin 
+# có sẵn của API server, có nhiệm vụ sẽ thay đổi resource requests của Pod khi nó được 
+# tạo để đúng với giá trị của Recommender.
